@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Utilities/VirtualMemory.h"
 #include "Utilities/bin_patch.h"
 #include "Crypto/sha1.h"
@@ -1117,6 +1117,9 @@ void ppu_load_exec(const ppu_exec_object& elf)
 		hash[5 + i * 2] = pal[_main->sha1[i] & 15];
 	}
 
+	//	Apply smart patches only to first segment(assumes executable like analyse)
+	auto smart_applied = fxm::check_unlocked<patch_engine>()->apply_smart((u32*)(vm::g_base_addr + _main->segs[0].addr), _main->segs[0].size);
+
 	// Apply the patch
 	auto applied = fxm::check_unlocked<patch_engine>()->apply(hash, vm::g_base_addr);
 
@@ -1126,7 +1129,7 @@ void ppu_load_exec(const ppu_exec_object& elf)
 		applied += fxm::check_unlocked<patch_engine>()->apply(Emu.GetTitleID() + '-' + hash, vm::g_base_addr);
 	}
 
-	LOG_NOTICE(LOADER, "PPU executable hash: %s (<- %u)", hash, applied);
+	LOG_NOTICE(LOADER, "PPU executable hash: %s (<- %u,s:%u)", hash, applied, smart_applied);
 
 	// Initialize HLE modules
 	ppu_initialize_modules(link);

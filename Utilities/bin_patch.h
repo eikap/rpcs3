@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "BEType.h"
 #include <vector>
@@ -19,15 +19,31 @@ enum class patch_type
 	be64,
 	bef32,
 	bef64,
+	smart,
+};
+
+enum class sp_patch_type
+{
+	normal,
+	branch,
 };
 
 class patch_engine
 {
+	struct sp_patch_pattern
+	{
+		u32 value;
+		sp_patch_type type;
+	};
+
 	struct patch
 	{
 		patch_type type;
 		u32 offset;
 		u64 value;
+
+		std::vector<sp_patch_pattern> sp_pattern;
+		std::vector<sp_patch_pattern> sp_result;
 
 		template <typename T>
 		T& value_as()
@@ -45,4 +61,6 @@ public:
 
 	// Apply patch (returns the number of entries applied)
 	std::size_t apply(const std::string& name, u8* dst) const;
+	// For smart patches
+	std::size_t apply_smart(u32* addr, u32 size) const;
 };
