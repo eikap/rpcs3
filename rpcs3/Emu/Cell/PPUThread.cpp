@@ -1530,6 +1530,8 @@ extern void ppu_initialize(const ppu_module& info)
 				sha1_update(&ctx, reinterpret_cast<const u8*>(&forced_upd), sizeof(forced_upd));
 			}
 
+			if(info.num_patches) sha1_update(&ctx, reinterpret_cast<const u8*>(&info.num_patches), sizeof(info.num_patches));
+
 			sha1_finish(&ctx, output);
 			fmt::append(obj_name, "-%016X-%s.obj", reinterpret_cast<be_t<u64>&>(output), jit_compiler::cpu(g_cfg.core.llvm_cpu));
 		}

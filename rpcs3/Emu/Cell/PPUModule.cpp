@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Utilities/VirtualMemory.h"
 #include "Utilities/bin_patch.h"
 #include "Crypto/sha1.h"
@@ -943,6 +943,32 @@ std::shared_ptr<lv2_prx> ppu_load_prx(const ppu_prx_object& elf, const std::stri
 		prx->specials = ppu_load_exports(link, lib_info->exports_start, lib_info->exports_end);
 		prx->imports = ppu_load_imports(prx->relocs, link, lib_info->imports_start, lib_info->imports_end);
 		std::stable_sort(prx->relocs.begin(), prx->relocs.end());
+
+		sha1_finish(&sha, prx->sha1);
+
+		// Format patch name
+		std::string hash("PRX-0000000000000000000000000000000000000000");
+		for (u32 i = 0; i < 20; i++)
+		{
+			constexpr auto pal = "0123456789abcdef";
+			hash[4 + i * 2] = pal[prx->sha1[i] >> 4];
+			hash[5 + i * 2] = pal[prx->sha1[i] & 15];
+		}
+
+		// Apply the patch
+		const vm::cptr<u8> patch_ptr = vm::cast(prx->segs[0].addr);
+		auto applied = fxm::check_unlocked<patch_engine>()->apply(hash, (u8 *)vm::base(prx->segs[0].addr));
+
+		if (!Emu.GetTitleID().empty())
+		{
+			// Alternative patch
+			applied += fxm::check_unlocked<patch_engine>()->apply(Emu.GetTitleID() + '-' + hash, (u8 *)vm::base(prx->segs[0].addr));
+		}
+
+		prx->num_patches = applied;
+
+		LOG_NOTICE(LOADER, "PRX library hash: %s (<- %u)", hash, applied);
+
 		prx->analyse(lib_info->toc, 0);
 	}
 	else
@@ -957,28 +983,6 @@ std::shared_ptr<lv2_prx> ppu_load_prx(const ppu_prx_object& elf, const std::stri
 	prx->epilogue.set(prx->specials[0x330f7005]);
 	prx->name = path.substr(path.find_last_of('/') + 1);
 	prx->path = path;
-
-	sha1_finish(&sha, prx->sha1);
-
-	// Format patch name
-	std::string hash("PRX-0000000000000000000000000000000000000000");
-	for (u32 i = 0; i < 20; i++)
-	{
-		constexpr auto pal = "0123456789abcdef";
-		hash[4 + i * 2] = pal[prx->sha1[i] >> 4];
-		hash[5 + i * 2] = pal[prx->sha1[i] & 15];
-	}
-
-	// Apply the patch
-	auto applied = fxm::check_unlocked<patch_engine>()->apply(hash, vm::g_base_addr);
-
-	if (!Emu.GetTitleID().empty())
-	{
-		// Alternative patch
-		applied += fxm::check_unlocked<patch_engine>()->apply(Emu.GetTitleID() + '-' + hash, vm::g_base_addr);
-	}
-
-	LOG_NOTICE(LOADER, "PRX library hash: %s (<- %u)", hash, applied);
 
 	if (Emu.IsReady() && fxm::import<ppu_module>([&] { return prx; }))
 	{
