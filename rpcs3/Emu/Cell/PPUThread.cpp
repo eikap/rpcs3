@@ -834,7 +834,7 @@ void ppu_thread::fast_call(u32 addr, u32 rtoc)
 	g_tls_log_prefix = []
 	{
 		const auto _this = static_cast<ppu_thread*>(get_current_cpu_thread());
-		return fmt::format("%s [0x%08x]", thread_ctrl::get_name(), _this->cia);
+		return fmt::format("%s [0x%08x | LR:0x%08x]", thread_ctrl::get_name(), _this->cia, (u32)_this->lr);
 	};
 
 	auto at_ret = [&]()
