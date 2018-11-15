@@ -217,9 +217,10 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;WITH_DISCORD_RPC;QT_UI;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>
-        $(QTDIR)\bin\windeployqt --no-angle --no-opengl-sw --no-svg --no-translations --no-quick --plugindir "$(TargetDir)qt\plugins" "$(TargetPath)"
-      </Command>
+      <Command>$(QTDIR)\bin\windeployqt --no-angle --no-opengl-sw --no-svg --no-translations --no-quick --plugindir "$(TargetDir)qt\plugins" "$(TargetPath)"
+
+xcopy /y $(OutDir)rpcs3.exe G:\Rpcs3\
+</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>
