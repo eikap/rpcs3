@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <map>
@@ -69,6 +69,7 @@ struct ppu_segment
 struct ppu_module
 {
 	uchar sha1[20];
+	u32 num_patches;
 	std::string name;
 	std::string path;
 	std::string cache;

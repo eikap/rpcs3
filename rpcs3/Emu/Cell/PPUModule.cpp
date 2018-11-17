@@ -965,6 +965,15 @@ std::shared_ptr<lv2_prx> ppu_load_prx(const ppu_prx_object& elf, const std::stri
 			applied += fxm::check_unlocked<patch_engine>()->apply(Emu.GetTitleID() + '-' + hash, (u8 *)vm::base(prx->segs[0].addr));
 		}
 
+		if (hash == "PRX-d21bf5d505d87dbc39cd0bfdd45eac4951122ca9")
+		{
+			auto daptr = ((u8 *)vm::base(prx->segs[0].addr)) + 0x8590;
+			*reinterpret_cast<be_t<u32, 1>*>(daptr) = static_cast<u32>(0x38C00004);
+			daptr = ((u8 *)vm::base(prx->segs[0].addr)) + 0x740C;
+			*reinterpret_cast<be_t<u32, 1>*>(daptr) = static_cast<u32>(0x3B600004);
+			applied += 2;
+		}
+
 		prx->num_patches = applied;
 
 		LOG_NOTICE(LOADER, "PRX library hash: %s (<- %u)", hash, applied);
