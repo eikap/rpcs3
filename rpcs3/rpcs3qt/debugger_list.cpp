@@ -1,4 +1,4 @@
-#include "debugger_list.h"
+﻿#include "debugger_list.h"
 
 #include "Emu/Cell/SPUThread.h"
 #include "Emu/System.h"
@@ -49,7 +49,7 @@ void debugger_list::ShowAddress(u32 addr)
 {
 	auto IsBreakpoint = [this](u32 pc)
 	{
-		return m_breakpoint_handler->HasBreakpoint(pc);
+		return m_breakpoint_handler->HasBreakpoint(pc, breakpoint_type::bp_execute);
 	};
 
 	if (xgui_settings->GetValue(gui::d_centerPC).toBool())
