@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifdef LLVM_AVAILABLE
 
@@ -208,6 +208,8 @@ public:
 		for (std::size_t i = 0; i < N; i++) values[i] = ZExt(values[i], type);
 		return values;
 	}
+
+	void SetBreakpoint();
 
 	// Add multiple elements
 	llvm::Value* Add(std::initializer_list<llvm::Value*>);
