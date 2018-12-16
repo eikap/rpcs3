@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "stdafx.h"
 #include "Emu/Memory/vm.h"
@@ -42,6 +42,7 @@ class debugger_frame : public custom_dock_widget
 	QPushButton* m_btn_step;
 	QPushButton* m_btn_step_over;
 	QPushButton* m_btn_run;
+	QPushButton* m_btn_dmpspu;
 	QComboBox* m_choice_units;
 	QString m_current_choice;
 	QTimer* m_update;
@@ -80,7 +81,9 @@ public:
 	void ClearBreakpoints(); // Fallthrough method into breakpoint_list.
 
 	/** Needed so key press events work when other objects are selected in debugger_frame. */
-	bool eventFilter(QObject* object, QEvent* event) override; 
+	bool eventFilter(QObject* object, QEvent* event) override;
+	void DumpSpu();
+
 protected:
 	/** Override inherited method from Qt to allow signalling when close happened.*/
 	void closeEvent(QCloseEvent* event) override;
