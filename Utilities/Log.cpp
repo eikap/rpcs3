@@ -380,10 +380,10 @@ logs::file_writer::file_writer(const std::string& name)
 		m_fout.open(log_name, fs::rewrite);
 
 		// Compressed log, make it inaccessible (foolproof)
-		if (!m_fout2.open(log_name + ".gz", fs::rewrite + fs::unread) || deflateInit2(&m_zs, 9, Z_DEFLATED, 16 + 15, 9, Z_DEFAULT_STRATEGY) != Z_OK)
-		{
-			m_fout2.close();
-		}
+		//if (!m_fout2.open(log_name + ".gz", fs::rewrite + fs::unread) || deflateInit2(&m_zs, 9, Z_DEFLATED, 16 + 15, 9, Z_DEFAULT_STRATEGY) != Z_OK)
+		//{
+		//	m_fout2.close();
+		//}
 
 #ifdef _WIN32
 		// Autodelete compressed log file
