@@ -6,6 +6,8 @@
 #include "pad_thread.h"
 #include "cellPad.h"
 
+#include "testing_unit.h"
+
 extern logs::channel sys_io;
 
 template<>
@@ -361,6 +363,9 @@ error_code cellPadGetData(u32 port_no, vm::ptr<CellPadData> data)
 			data->button[CELL_PAD_BTN_OFFSET_SENSOR_G] = pad->m_sensor_g;
 		}
 	}
+
+	if (port_no == 0)
+		tu_core.pad_event(data->len > CELL_PAD_LEN_NO_CHANGE, (u8*)data.get_ptr());
 
 	return CELL_OK;
 }

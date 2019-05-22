@@ -6,6 +6,7 @@
 #include "../rsx_methods.h"
 #include "../Common/BufferUtils.h"
 #include "../rsx_utils.h"
+#include "testing_unit.h"
 
 #define DUMP_VERTEX_DATA 0
 
@@ -1716,7 +1717,9 @@ void GLGSRender::flip(int buffer, bool emu_flip)
 			image = m_flip_tex_color->id();
 		}
 
-		areai screen_area = coordi({}, { (int)buffer_width, (int)buffer_height });
+		tu_core.opengl_frame_event(image, buffer_width, buffer_height, buffer_pitch);
+
+		areai screen_area = coordi({}, {(int)buffer_width, (int)buffer_height});
 
 		if (g_cfg.video.full_rgb_range_output && (!avconfig || avconfig->gamma == 1.f))
 		{

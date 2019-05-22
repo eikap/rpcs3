@@ -42,6 +42,8 @@
 
 #include "Utilities/JIT.h"
 
+#include "testing_unit.h"
+
 #if defined(_WIN32) || defined(HAVE_VULKAN)
 #include "Emu/RSX/VK/VulkanAPI.h"
 #endif
@@ -613,6 +615,8 @@ bool Emulator::BootGame(const std::string& path, const std::string& title_id, bo
 	if (g_cfg.vfs.limit_cache_size)
 		LimitCacheSize();
 
+	tu_core.handle_path(path);
+
 	static const char* boot_list[] =
 	{
 		"/eboot.bin",
@@ -924,6 +928,9 @@ void Emulator::Load(const std::string& title_id, bool add_only, bool force_globa
 				g_cfg.from_string(cfg_file.to_string());
 			}
 		}
+
+		// Saves/Load config for TU
+		tu_core.handle_config();
 
 #if defined(_WIN32) || defined(HAVE_VULKAN)
 		if (g_cfg.video.renderer == video_renderer::vulkan)
