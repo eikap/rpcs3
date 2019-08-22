@@ -25,8 +25,6 @@ error_code sys_memory_allocate(u32 size, u64 flags, vm::ptr<u32> alloc_addr)
 {
 	vm::temporary_unlock();
 
-	sys_memory.warning("sys_memory_allocate(size=0x%x, flags=0x%llx, alloc_addr=*0x%x)", size, flags, alloc_addr);
-
 	// Check allocation size
 	const u32 align =
 		flags == SYS_MEMORY_PAGE_SIZE_1M ? 0x100000 :
@@ -59,6 +57,7 @@ error_code sys_memory_allocate(u32 size, u64 flags, vm::ptr<u32> alloc_addr)
 			if (alloc_addr)
 			{
 				*alloc_addr = addr;
+				sys_memory.warning("sys_memory_allocate(size=0x%x, flags=0x%llx, alloc_addr=*0x%x, *alloc_addr=0x%x)", size, flags, alloc_addr, *alloc_addr);
 				return CELL_OK;
 			}
 
