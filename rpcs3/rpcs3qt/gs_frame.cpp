@@ -124,6 +124,8 @@ void gs_frame::showEvent(QShowEvent *event)
 	QWindow::showEvent(event);
 }
 
+bool fakeinput_toggle = false;
+
 void gs_frame::keyPressEvent(QKeyEvent *keyEvent)
 {
 	switch (keyEvent->key())
@@ -155,6 +157,9 @@ void gs_frame::keyPressEvent(QKeyEvent *keyEvent)
 		break;
 	case Qt::Key_F12:
 		screenshot_toggle = true;
+		break;
+	case Qt::Key_F:
+		fakeinput_toggle = !fakeinput_toggle;
 		break;
 	default:
 		break;
