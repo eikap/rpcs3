@@ -18,6 +18,8 @@
 #include <mutex>
 #include <thread>
 
+#include "Emu/Cell/Modules/StaticHLE.h"
+
 extern atomic_t<const char*> g_progr;
 extern atomic_t<u32> g_progr_ptotal;
 extern atomic_t<u32> g_progr_pdone;
@@ -6071,6 +6073,15 @@ public:
 	{
 		// This instruction forces all earlier load, store, and channel instructions to complete before proceeding.
 		m_ir->CreateFence(llvm::AtomicOrdering::SequentiallyConsistent);
+	}
+
+	void STATICHLE(spu_opcode_t op) //
+	{
+		const auto func = g_fxo->get<statichle_handler>()->get_spu_func(op.opcode & 0xFFFF);
+
+		spu_log.warning("Found STATICHLE opcode for func(0x%x): %s", func.second, func.first);
+
+		call(func.first, func.second, m_thread);
 	}
 
 	void MFSPR(spu_opcode_t op) //

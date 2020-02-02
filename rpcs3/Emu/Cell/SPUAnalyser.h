@@ -36,6 +36,7 @@ struct spu_itype
 		NOP,
 		SYNC,
 		DSYNC,
+		STATICHLE,
 		MFSPR,
 		MTSPR,
 		RDCH,
@@ -286,6 +287,7 @@ struct spu_iflag
 		NOP,
 		SYNC,
 		DSYNC,
+		STATICHLE,
 		MFSPR,
 		MTSPR,
 		DFCEQ,
@@ -510,6 +512,7 @@ struct spu_iname
 	NAME(NOP);
 	NAME(SYNC);
 	NAME(DSYNC);
+	NAME(STATICHLE);
 	NAME(MFSPR);
 	NAME(MTSPR);
 	NAME(RDCH);

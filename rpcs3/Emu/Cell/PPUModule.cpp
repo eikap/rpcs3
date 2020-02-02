@@ -1157,6 +1157,8 @@ void ppu_load_exec(const ppu_exec_object& elf)
 	// Initialize HLE modules
 	ppu_initialize_modules(link);
 
+	auto shle = g_fxo->init<statichle_handler>(0);
+
 	// Embedded SPU elf patching
 	for (u32 i = _main->segs[0].addr; i < (_main->segs[0].addr + _main->segs[0].size); i += 128)
 	{
@@ -1229,17 +1231,25 @@ void ppu_load_exec(const ppu_exec_object& elf)
 
 		ppu_loader.notice("SPU executable hash: %s (<- %u)%s", hash, applied, dump);
 
+		// Static HLE for SPU
+		if (g_cfg.core.hook_functions)
+		{
+			for (const auto& prog : obj.progs)
+			{
+				for (u32 i = 0; i < prog.p_filesz; i += 4)
+				{
+					shle->check_against_spu_patterns(elf_header + prog.p_offset + i, prog.p_filesz - i);
+				}
+			}
+		}
 	}
 
 	// Static HLE patching
 	if (g_cfg.core.hook_functions)
 	{
-		auto shle = g_fxo->init<statichle_handler>(0);
-
 		for (u32 i = _main->segs[0].addr; i < (_main->segs[0].addr + _main->segs[0].size); i += 4)
 		{
-			vm::cptr<u8> _ptr = vm::cast(i);
-			shle->check_against_patterns(_ptr, (_main->segs[0].addr + _main->segs[0].size) - i, i);
+			shle->check_against_ppu_patterns(vm::cast(i), (_main->segs[0].addr + _main->segs[0].size) - i, i);
 		}
 	}
 

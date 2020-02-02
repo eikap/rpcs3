@@ -155,6 +155,13 @@ bool spu_interpreter::DSYNC(spu_thread& spu, spu_opcode_t op)
 	return true;
 }
 
+bool spu_interpreter::STATICHLE(spu_thread& spu, spu_opcode_t op)
+{
+	// STATICHLE: TODO
+	ASSERT(false);
+	return true;
+}
+
 bool spu_interpreter::MFSPR(spu_thread& spu, spu_opcode_t op)
 {
 	spu.gpr[op.rt].clear(); // All SPRs read as zero. TODO: check it.

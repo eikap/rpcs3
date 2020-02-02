@@ -175,6 +175,10 @@ public:
 	{
 		DisAsm("dsync");
 	}
+	void STATICHLE(spu_opcode_t /*op*/)
+	{
+		DisAsm("STATICHLE");
+	}
 	void MFSPR(spu_opcode_t op)
 	{
 		DisAsm("mfspr", spu_reg_name[op.rt], spu_spreg_name[op.ra]);

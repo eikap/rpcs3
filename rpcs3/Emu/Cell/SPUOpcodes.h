@@ -78,6 +78,7 @@ public:
 			{ 0, 0x1, &D::LNOP },
 			{ 0, 0x2, &D::SYNC },
 			{ 0, 0x3, &D::DSYNC },
+			{ 0, 0x4, &D::STATICHLE }, // Added for static hle
 			{ 0, 0xc, &D::MFSPR },
 			{ 0, 0xd, &D::RDCH },
 			{ 0, 0xf, &D::RCHCNT },
