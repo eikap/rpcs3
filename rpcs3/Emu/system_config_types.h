@@ -178,4 +178,5 @@ enum np_psn_status
 {
 	disabled,
 	fake,
+	rpcn,
 };

@@ -54,6 +54,7 @@ install:
       3rdparty/yaml-cpp `
       3rdparty/zlib `
       3rdparty/FAudio `
+      3rdparty/flatbuffers `
       asmjit `
       Vulkan/glslang
 

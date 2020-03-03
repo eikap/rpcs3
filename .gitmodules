@@ -55,3 +55,7 @@
 	path = 3rdparty/span
 	url = https://github.com/tcbrindle/span
 	ignore = dirty
+[submodule "3rdparty/flatbuffers"]
+	path = 3rdparty/flatbuffers
+	url = https://github.com/google/flatbuffers.git
+	ignore = dirty
