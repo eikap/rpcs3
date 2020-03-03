@@ -144,6 +144,8 @@ public:
 		IpSwapList,
 		PSNStatus,
 		PSNNPID,
+		RPCNHost,
+		RPCNPassword,
 
 		// System
 		Language,
@@ -393,6 +395,8 @@ private:
 		{ IpSwapList,     { "Net", "IP swap list"}},
 		{ PSNStatus,      { "Net", "PSN status"}},
 		{ PSNNPID,        { "Net", "NPID"}},
+		{ RPCNHost,       { "Net", "RPCN host"}},
+		{ RPCNPassword,   { "Net", "RPCN Password"}},
 
 		// System
 		{ Language,              { "System", "Language"}},
