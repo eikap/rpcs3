@@ -186,7 +186,7 @@ void np_handler::init_NP(u32 poolsize, vm::ptr<void> poolptr)
 		std::string s_npid = g_cfg.net.psn_npid;
 		ASSERT(s_npid != ""); // It should be generated in settings window if empty
 
-		std::memcpy(npid.handle.data, s_npid.c_str(), std::min(sizeof(npid.handle.data), s_npid.size());
+		std::memcpy(npid.handle.data, s_npid.c_str(), std::min(sizeof(npid.handle.data), s_npid.size()));
 		npid.reserved[0] = 1;
 	}
 
@@ -196,8 +196,8 @@ void np_handler::init_NP(u32 poolsize, vm::ptr<void> poolptr)
 		break;
 	case np_psn_status::fake:
 	{
-		std::memcpy(online_name.data, "RPCS3's user", std::min(sizeof(online_name.data), std::string_view("RPCS3's user").size());
-		std::memcpy(avatar_url.data, "https://i.imgur.com/AfWIyQP.jpg", std::min(sizeof(avatar_url.data), std::string_view("https://i.imgur.com/AfWIyQP.jpg").size());
+		std::memcpy(online_name.data, "RPCS3's user", std::min(sizeof(online_name.data), std::string_view("RPCS3's user").size()));
+		std::memcpy(avatar_url.data, "https://i.imgur.com/AfWIyQP.jpg", std::min(sizeof(avatar_url.data), std::string_view("https://i.imgur.com/AfWIyQP.jpg").size()));
 		break;
 	}
 	case np_psn_status::rpcn:
