@@ -256,9 +256,15 @@ struct network_thread
 
 	~network_thread()
 	{
+		if (p2p_socket)
+		{
 #ifdef _WIN32
+		::closesocket(p2p_socket);
 		WSACleanup();
+#else
+		::close(p2p_socket);
 #endif
+		}
 	}
 
 	void operator()()
@@ -487,11 +493,15 @@ lv2_socket::lv2_socket(lv2_socket::socket_type s, s32 s_type)
 
 lv2_socket::~lv2_socket()
 {
+	// Don't close P2P sockets as the actual P2P socket always stays open
+	if (type != SYS_NET_SOCK_DGRAM_P2P)
+	{
 #ifdef _WIN32
-	::closesocket(socket);
+		::closesocket(socket);
 #else
-	::close(socket);
+		::close(socket);
 #endif
+	}
 }
 
 error_code sys_net_bnet_accept(ppu_thread& ppu, s32 s, vm::ptr<sys_net_sockaddr> addr, vm::ptr<u32> paddrlen)
@@ -1819,6 +1829,10 @@ error_code sys_net_bnet_shutdown(ppu_thread& ppu, s32 s, s32 how)
 	{
 		std::lock_guard lock(sock.mutex);
 
+		// Shutdown of P2P socket is always successful
+		if (sock.type == SYS_NET_SOCK_DGRAM_P2P)
+			return {};
+
 #ifdef _WIN32
 		const int native_how =
 			how == SYS_NET_SHUT_RD ? SD_RECEIVE :
@@ -1938,7 +1952,6 @@ error_code sys_net_bnet_close(ppu_thread& ppu, s32 s)
 
 		nc->bound_p2p_ports.erase(sock->vport);
 	}
-	
 
 	const auto nph = g_fxo->get<named_thread<np_handler>>();
 	nph->remove_dns_spy(s);
