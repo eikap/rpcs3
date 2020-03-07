@@ -913,11 +913,11 @@ settings_dialog::settings_dialog(std::shared_ptr<gui_settings> gui_settings, std
 	m_emu_settings->EnhanceEdit(ui->edit_npid, emu_settings::PSNNPID);
 	SubscribeTooltip(ui->gb_edit_npid, tooltips.settings.psn_npid);
 
-	xemu_settings->EnhanceEdit(ui->edit_rpcnhost, emu_settings::RPCNHost);
-	SubscribeTooltip(ui->gb_edit_rpcnhost, tooltips.settings.rpcn_host);
+	m_emu_settings->EnhanceEdit(ui->edit_rpcnhost, emu_settings::RPCNHost);
+	SubscribeTooltip(ui->edit_rpcnhost, tooltips.settings.rpcn_host);
 
-	xemu_settings->EnhanceEdit(ui->edit_rpcnpassword, emu_settings::RPCNPassword);
-	SubscribeTooltip(ui->gb_edit_rpcnpassword, tooltips.settings.rpcn_password);
+	m_emu_settings->EnhanceEdit(ui->edit_rpcnpassword, emu_settings::RPCNPassword);
+	SubscribeTooltip(ui->edit_rpcnpassword, tooltips.settings.rpcn_password);
 
 	m_emu_settings->EnhanceEdit(ui->edit_swaps, emu_settings::IpSwapList);
 	SubscribeTooltip(ui->gb_edit_swaps, tooltips.settings.dns_swap);
