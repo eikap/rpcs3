@@ -1041,6 +1041,10 @@ bool np_handler::destroy_match2_context(u16 ctx_id)
 {
 	return idm::remove<match2_ctx>(static_cast<u32>(ctx_id));
 }
+std::shared_ptr<np_handler::match2_ctx> np_handler::get_match2_context(u16 ctx_id)
+{
+	return idm::get_unlocked<match2_ctx>(ctx_id);
+}
 
 s32 np_handler::create_lookup_context(vm::cptr<SceNpCommunicationId> communicationId)
 {
@@ -1063,11 +1067,14 @@ u32 np_handler::generate_callback_info(SceNpMatching2ContextId ctx_id, vm::cptr<
 {
 	callback_info ret;
 
-	const u32 req_id = get_req_id(optParam ? optParam->appReqId : default_match2_optparam.appReqId);
+	const auto ctx = get_match2_context(ctx_id);
+	ASSERT(ctx);
+
+	const u32 req_id = get_req_id(optParam ? optParam->appReqId : ctx->default_match2_optparam.appReqId);
 
 	ret.ctx_id = ctx_id;
-	ret.cb     = optParam ? optParam->cbFunc : default_match2_optparam.cbFunc;
-	ret.cb_arg = optParam ? optParam->cbFuncArg : default_match2_optparam.cbFuncArg;
+	ret.cb     = optParam ? optParam->cbFunc : ctx->default_match2_optparam.cbFunc;
+	ret.cb_arg = optParam ? optParam->cbFuncArg : ctx->default_match2_optparam.cbFuncArg;
 
 	pending_requests[req_id] = std::move(ret);
 

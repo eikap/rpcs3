@@ -77,8 +77,6 @@ public:
 	u16 signal_event_cb_ctx = 0;
 	vm::ptr<void> signal_event_cb_arg{};
 
-	SceNpMatching2RequestOptParam default_match2_optparam{};
-
 	// Score related
 	struct score_ctx
 	{
@@ -91,8 +89,8 @@ public:
 		static const u32 id_base  = 1;
 		static const u32 id_step  = 1;
 		static const u32 id_count = 32;
-		SceNpCommunicationId communicationId;
-		SceNpCommunicationPassphrase passphrase;
+		SceNpCommunicationId communicationId{};
+		SceNpCommunicationPassphrase passphrase{};
 	};
 	s32 create_score_context(vm::cptr<SceNpCommunicationId> communicationId, vm::cptr<SceNpCommunicationPassphrase> passphrase);
 	bool destroy_score_context(s32 ctx_id);
@@ -110,10 +108,16 @@ public:
 		static const u32 id_step  = 1;
 		static const u32 id_count = 255;
 
-		SceNpCommunicationId communicationId;
-		SceNpCommunicationPassphrase passphrase;
+		SceNpCommunicationId communicationId{};
+		SceNpCommunicationPassphrase passphrase{};
+
+		vm::ptr<SceNpMatching2ContextCallback> context_callback{};
+		vm::ptr<void> context_callback_param{};
+
+		SceNpMatching2RequestOptParam default_match2_optparam{};
 	};
 	u16 create_match2_context(vm::cptr<SceNpCommunicationId> communicationId, vm::cptr<SceNpCommunicationPassphrase> passphrase);
+	std::shared_ptr<match2_ctx> get_match2_context(u16 ctx_id);
 	bool destroy_match2_context(u16 ctx_id);
 
 	struct lookup_ctx
@@ -127,8 +131,8 @@ public:
 		static const u32 id_step  = 1;
 		static const u32 id_count = 32;
 
-		SceNpCommunicationId communicationId;
-		SceNpCommunicationPassphrase passphrase;
+		SceNpCommunicationId communicationId{};
+		SceNpCommunicationPassphrase passphrase{};
 	};
 	s32 create_lookup_context(vm::cptr<SceNpCommunicationId> communicationId);
 	bool destroy_lookup_context(s32 ctx_id);
