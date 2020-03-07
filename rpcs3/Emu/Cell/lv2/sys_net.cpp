@@ -663,7 +663,12 @@ error_code sys_net_bnet_bind(ppu_thread& ppu, s32 s, vm::cptr<sys_net_sockaddr> 
 
 			sys_net.notice("P2P Socket bind to %s:%d:%d", inet_ntoa(name.sin_addr), p2p_port, p2p_vport);
 
-			ASSERT(p2p_port==3658);
+			if (p2p_port != 3658)
+			{
+				sys_net.error("Attempted to bind a P2P socket to a port != 3658");
+				return sys_net_error::SYS_NET_EADDRNOTAVAIL;
+			}
+			// ASSERT(p2p_port==3658); // Scott Pilgrim tries to bind to 9100, ignore?
 			ASSERT(p2p_vport!=0);
 
 			const auto nc = g_fxo->get<network_context>();
