@@ -731,7 +731,7 @@ error_code sys_net_bnet_connect(ppu_thread& ppu, s32 s, vm::ptr<sys_net_sockaddr
 	name.sin_addr.s_addr = std::bit_cast<u32>(psa_in->sin_addr);
 	::socklen_t namelen  = sizeof(name);
 
-	sys_net.warning("Attempting to connect on %s:%d", inet_ntoa(name.sin_addr), ntohs(name.sin_port)); // std::bit_cast<be_t<u16>, u16>(name.sin_port)
+	sys_net.trace("Attempting to connect on %s:%d", inet_ntoa(name.sin_addr), ntohs(name.sin_port)); // std::bit_cast<be_t<u16>, u16>(name.sin_port)
 
 	const auto sock = idm::check<lv2_socket>(s, [&](lv2_socket& sock)
 	{

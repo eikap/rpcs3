@@ -7,7 +7,6 @@
 #include "rpcn_client.h"
 #include "np_structs_extra.h"
 #include "Utilities/StrUtil.h"
-#include "Utilities/Log.h"
 #include "Utilities/BEType.h"
 #include "Utilities/Thread.h"
 #include "Emu/IdManager.h"
@@ -156,7 +155,7 @@ bool rpcn_client::forge_send_reply(u16 command, u32 packet_id, const std::vector
 
 bool rpcn_client::connect(const std::string& host)
 {
-	rpcn_log.notice("Attempting to connect to RPCN: %s", host);
+	rpcn_log.warning("Attempting to connect to RPCN!");
 
 	memset(&addr_rpcn, 0, sizeof(addr_rpcn));
 
