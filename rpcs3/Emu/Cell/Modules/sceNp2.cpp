@@ -414,7 +414,7 @@ error_code sceNpMatching2SearchRoom(
 error_code sceNpMatching2SignalingGetConnectionStatus(
     SceNpMatching2ContextId ctxId, SceNpMatching2RoomId roomId, SceNpMatching2RoomMemberId memberId, vm::ptr<int> connStatus, vm::ptr<np_in_addr> peerAddr, vm::ptr<np_in_port_t> peerPort)
 {
-	sceNp2.todo("sceNpMatching2SignalingGetConnectionStatus(ctxId=%d, roomId=%d, memberId=%d, connStatus=*0x%x, peerAddr=*0x%x, peerPort=*0x%x)", ctxId, roomId, memberId, connStatus, peerAddr, peerPort);
+	sceNp2.warning("sceNpMatching2SignalingGetConnectionStatus(ctxId=%d, roomId=%d, memberId=%d, connStatus=*0x%x, peerAddr=*0x%x, peerPort=*0x%x)", ctxId, roomId, memberId, connStatus, peerAddr, peerPort);
 
 	const auto nph = g_fxo->get<named_thread<np_handler>>();
 
@@ -488,7 +488,7 @@ error_code sceNpMatching2GetLobbyMemberDataInternal(
 
 error_code sceNpMatching2ContextStart(SceNpMatching2ContextId ctxId)
 {
-	sceNp2.todo("sceNpMatching2ContextStart(ctxId=%d)", ctxId);
+	sceNp2.warning("sceNpMatching2ContextStart(ctxId=%d)", ctxId);
 
 	const auto nph = g_fxo->get<named_thread<np_handler>>();
 
@@ -496,6 +496,19 @@ error_code sceNpMatching2ContextStart(SceNpMatching2ContextId ctxId)
 	{
 		return SCE_NP_MATCHING2_ERROR_NOT_INITIALIZED;
 	}
+
+	const auto ctx = nph->get_match2_context(ctxId);
+	if (!ctx)
+		return SCE_NP_MATCHING2_ERROR_INVALID_CONTEXT_ID;
+
+	if (ctx->context_callback)
+	{
+		sysutil_register_cb([=](ppu_thread& cb_ppu) -> s32 {
+			ctx->context_callback(cb_ppu, ctxId, SCE_NP_MATCHING2_CONTEXT_EVENT_Start, SCE_NP_MATCHING2_EVENT_CAUSE_CONTEXT_ACTION, 0, ctx->context_callback_param);
+			return 0;
+		});
+	}
+	
 
 	return CELL_OK;
 }
@@ -537,7 +550,7 @@ error_code sceNpMatching2GetMemoryInfo(vm::ptr<SceNpMatching2MemoryInfo> memInfo
 error_code sceNpMatching2LeaveRoom(
     SceNpMatching2ContextId ctxId, vm::cptr<SceNpMatching2LeaveRoomRequest> reqParam, vm::cptr<SceNpMatching2RequestOptParam> optParam, vm::ptr<SceNpMatching2RequestId> assignedReqId)
 {
-	sceNp2.todo("sceNpMatching2LeaveRoom(ctxId=%d, reqParam=*0x%x, optParam=*0x%x, assignedReqId=*0x%x)", ctxId, reqParam, optParam, assignedReqId);
+	sceNp2.warning("sceNpMatching2LeaveRoom(ctxId=%d, reqParam=*0x%x, optParam=*0x%x, assignedReqId=*0x%x)", ctxId, reqParam, optParam, assignedReqId);
 
 	const auto nph = g_fxo->get<named_thread<np_handler>>();
 
@@ -851,13 +864,25 @@ error_code sceNpMatching2KickoutRoomMember(
 
 error_code sceNpMatching2ContextStartAsync(SceNpMatching2ContextId ctxId, u32 timeout)
 {
-	sceNp2.todo("sceNpMatching2ContextStartAsync(ctxId=%d, timeout=%d)", ctxId, timeout);
+	sceNp2.warning("sceNpMatching2ContextStartAsync(ctxId=%d, timeout=%d)", ctxId, timeout);
 
 	const auto nph = g_fxo->get<named_thread<np_handler>>();
 
 	if (!nph->is_NP2_Match2_init)
 	{
 		return SCE_NP_MATCHING2_ERROR_NOT_INITIALIZED;
+	}
+
+	const auto ctx = nph->get_match2_context(ctxId);
+	if (!ctx)
+		return SCE_NP_MATCHING2_ERROR_INVALID_CONTEXT_ID;
+
+	if (ctx->context_callback)
+	{
+		sysutil_register_cb([=](ppu_thread& cb_ppu) -> s32 {
+			ctx->context_callback(cb_ppu, ctxId, SCE_NP_MATCHING2_CONTEXT_EVENT_Start, SCE_NP_MATCHING2_EVENT_CAUSE_CONTEXT_ACTION, 0, ctx->context_callback_param);
+			return 0;
+		});
 	}
 
 	return CELL_OK;
@@ -885,7 +910,7 @@ error_code sceNpMatching2SetSignalingOptParam(
 
 error_code sceNpMatching2RegisterContextCallback(SceNpMatching2ContextId ctxId, vm::ptr<SceNpMatching2ContextCallback> cbFunc, vm::ptr<void> cbFuncArg)
 {
-	sceNp2.todo("sceNpMatching2RegisterContextCallback(ctxId=%d, cbFunc=*0x%x, cbFuncArg=*0x%x)", ctxId, cbFunc, cbFuncArg);
+	sceNp2.warning("sceNpMatching2RegisterContextCallback(ctxId=%d, cbFunc=*0x%x, cbFuncArg=*0x%x)", ctxId, cbFunc, cbFuncArg);
 
 	const auto nph = g_fxo->get<named_thread<np_handler>>();
 
@@ -893,6 +918,13 @@ error_code sceNpMatching2RegisterContextCallback(SceNpMatching2ContextId ctxId, 
 	{
 		return SCE_NP_MATCHING2_ERROR_NOT_INITIALIZED;
 	}
+
+	const auto ctx = nph->get_match2_context(ctxId);
+	if (!ctx)
+		return SCE_NP_MATCHING2_ERROR_INVALID_CONTEXT_ID;
+
+	ctx->context_callback = cbFunc;
+	ctx->context_callback_param = cbFuncArg;
 
 	return CELL_OK;
 }
@@ -1228,7 +1260,7 @@ error_code sceNpMatching2DeleteServerContext(
 
 error_code sceNpMatching2SetDefaultRequestOptParam(SceNpMatching2ContextId ctxId, vm::cptr<SceNpMatching2RequestOptParam> optParam)
 {
-	sceNp2.todo("sceNpMatching2SetDefaultRequestOptParam(ctxId=%d, optParam=*0x%x)", ctxId, optParam);
+	sceNp2.warning("sceNpMatching2SetDefaultRequestOptParam(ctxId=%d, optParam=*0x%x)", ctxId, optParam);
 
 	const auto nph = g_fxo->get<named_thread<np_handler>>();
 
@@ -1242,7 +1274,11 @@ error_code sceNpMatching2SetDefaultRequestOptParam(SceNpMatching2ContextId ctxId
 		return SCE_NP_MATCHING2_ERROR_INVALID_ARGUMENT;
 	}
 
-	memcpy(&nph->default_match2_optparam, optParam.get_ptr(), sizeof(SceNpMatching2RequestOptParam));
+	const auto ctx = nph->get_match2_context(ctxId);
+	if (!ctx)
+		return SCE_NP_MATCHING2_ERROR_INVALID_CONTEXT_ID;
+
+	memcpy(&ctx->default_match2_optparam, optParam.get_ptr(), sizeof(SceNpMatching2RequestOptParam));
 
 	return CELL_OK;
 }
