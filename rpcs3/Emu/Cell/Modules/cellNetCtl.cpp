@@ -329,6 +329,10 @@ error_code cellNetCtlGetNatInfo(vm::ptr<CellNetCtlNatInfo> natInfo)
 		return CELL_NET_CTL_ERROR_INVALID_SIZE;
 	}
 
+	natInfo->nat_type = CELL_NET_CTL_NATINFO_NAT_TYPE_2;
+	natInfo->stun_status = CELL_NET_CTL_NATINFO_STUN_OK;
+	natInfo->upnp_status = CELL_NET_CTL_NATINFO_UPNP_NO;
+
 	return CELL_OK;
 }
 

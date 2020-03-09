@@ -6,6 +6,7 @@
 #include "Emu/Memory/vm_ptr.h"
 #include "Emu/Cell/Modules/sceNp.h"
 #include "Emu/Cell/Modules/sceNp2.h"
+#include "Emu/Cell/Modules/sceNpCommerce2.h"
 
 #include "Emu/NP/rpcn_client.h"
 #include "generated/np2_structs_generated.h"
@@ -120,9 +121,9 @@ public:
 	std::shared_ptr<match2_ctx> get_match2_context(u16 ctx_id);
 	bool destroy_match2_context(u16 ctx_id);
 
-	struct lookup_ctx
+	struct lookup_title_ctx
 	{
-		lookup_ctx(vm::cptr<SceNpCommunicationId> communicationId)
+		lookup_title_ctx(vm::cptr<SceNpCommunicationId> communicationId)
 		{
 			memcpy(&this->communicationId, communicationId.get_ptr(), sizeof(SceNpCommunicationId));
 		}
@@ -134,13 +135,54 @@ public:
 		SceNpCommunicationId communicationId{};
 		SceNpCommunicationPassphrase passphrase{};
 	};
-	s32 create_lookup_context(vm::cptr<SceNpCommunicationId> communicationId);
-	bool destroy_lookup_context(s32 ctx_id);
+	s32 create_lookup_title_context(vm::cptr<SceNpCommunicationId> communicationId);
+	bool destroy_lookup_title_context(s32 ctx_id);
+
+	struct lookup_transaction_ctx
+	{
+		lookup_transaction_ctx(s32 lt_ctx)
+		{
+			this->lt_ctx = lt_ctx;
+		}
+
+		static const u32 id_base  = 1;
+		static const u32 id_step  = 1;
+		static const u32 id_count = 32;
+
+		s32 lt_ctx = 0;
+	};
+	s32 create_lookup_transaction_context(s32 lt_ctx);
+	bool destroy_lookup_transaction_context(s32 ctx_id);
+
+	struct commerce2_ctx
+	{
+		commerce2_ctx(u32 version, vm::cptr<SceNpId> npid, vm::ptr<SceNpCommerce2Handler> handler, vm::ptr<void> arg)
+		{
+			this->version = version;
+			memcpy(&this->npid, npid.get_ptr(), sizeof(SceNpId));
+			this->context_callback = handler;
+			this->context_callback_param = arg;
+		}
+
+		static const u32 id_base  = 1;
+		static const u32 id_step  = 1;
+		static const u32 id_count = 32;
+
+		u32 version;
+		SceNpId npid;
+		vm::ptr<SceNpCommerce2Handler> context_callback;
+		vm::ptr<void> context_callback_param;
+	};
+	s32 create_commerce2_context(u32 version, vm::cptr<SceNpId> npid, vm::ptr<SceNpCommerce2Handler> handler, vm::ptr<void> arg);
+	std::shared_ptr<commerce2_ctx> get_commerce2_context(u16 ctx_id);
+	bool destroy_commerce2_context(s32 ctx_id);
+
 
 	// Synchronous requests
 	std::vector<SceNpMatching2ServerId> get_match2_server_list(SceNpMatching2ContextId);
 	// Asynchronous requests
 	u32 get_server_status(SceNpMatching2ContextId ctx_id, vm::cptr<SceNpMatching2RequestOptParam> optParam, u16 server_id);
+	u32 create_server_context(SceNpMatching2ContextId ctx_id, vm::cptr<SceNpMatching2RequestOptParam> optParam, u16 server_id);
 	u32 get_world_list(SceNpMatching2ContextId ctx_id, vm::cptr<SceNpMatching2RequestOptParam> optParam, u16 server_id);
 	u32 create_join_room(SceNpMatching2ContextId ctx_id, vm::cptr<SceNpMatching2RequestOptParam> optParam, const SceNpMatching2CreateJoinRoomRequest* req);
 	u32 join_room(SceNpMatching2ContextId ctx_id, vm::cptr<SceNpMatching2RequestOptParam> optParam, const SceNpMatching2JoinRoomRequest* req);
