@@ -234,7 +234,7 @@ void np_handler::init_NP(u32 poolsize, vm::ptr<void> poolptr)
 
 void np_handler::terminate_NP()
 {
-	is_psn_active = false;
+	// is_psn_active = false;
 
 	// Reset memory pool
 	mpool.set(0);
@@ -321,6 +321,22 @@ u32 np_handler::get_server_status(SceNpMatching2ContextId ctx_id, vm::cptr<SceNp
 
 	sysutil_register_cb([=](ppu_thread& cb_ppu) -> s32 {
 		cb_info.cb(cb_ppu, cb_info.ctx_id, req_id, SCE_NP_MATCHING2_REQUEST_EVENT_GetServerInfo, event_key, 0, sizeof(SceNpMatching2GetServerInfoResponse), cb_info.cb_arg);
+		return 0;
+	});
+
+	return req_id;
+}
+
+u32 np_handler::create_server_context(SceNpMatching2ContextId ctx_id, vm::cptr<SceNpMatching2RequestOptParam> optParam, u16 server_id)
+{
+	u32 req_id    = generate_callback_info(ctx_id, optParam);
+	u32 event_key = get_event_key();
+
+	const auto cb_info = std::move(pending_requests.at(req_id));
+	pending_requests.erase(req_id);
+
+	sysutil_register_cb([=](ppu_thread& cb_ppu) -> s32 {
+		cb_info.cb(cb_ppu, cb_info.ctx_id, req_id, SCE_NP_MATCHING2_REQUEST_EVENT_CreateServerContext, event_key, 0, 0, cb_info.cb_arg);
 		return 0;
 	});
 
@@ -1046,14 +1062,38 @@ std::shared_ptr<np_handler::match2_ctx> np_handler::get_match2_context(u16 ctx_i
 	return idm::get_unlocked<match2_ctx>(ctx_id);
 }
 
-s32 np_handler::create_lookup_context(vm::cptr<SceNpCommunicationId> communicationId)
+s32 np_handler::create_lookup_title_context(vm::cptr<SceNpCommunicationId> communicationId)
 {
-	return static_cast<s32>(idm::make<lookup_ctx>(communicationId));
+	return static_cast<s32>(idm::make<lookup_title_ctx>(communicationId));
 }
-bool np_handler::destroy_lookup_context(s32 ctx_id)
+bool np_handler::destroy_lookup_title_context(s32 ctx_id)
 {
-	return idm::remove<match2_ctx>(static_cast<u32>(ctx_id));
+	return idm::remove<lookup_title_ctx>(static_cast<u32>(ctx_id));
 }
+
+s32 np_handler::create_lookup_transaction_context(s32 lt_ctx)
+{
+	return static_cast<s32>(idm::make<lookup_transaction_ctx>(lt_ctx));
+}
+bool np_handler::destroy_lookup_transaction_context(s32 ctx_id)
+{
+	return idm::remove<lookup_transaction_ctx>(static_cast<u32>(ctx_id));
+}
+
+s32 np_handler::create_commerce2_context(u32 version, vm::cptr<SceNpId> npid, vm::ptr<SceNpCommerce2Handler> handler, vm::ptr<void> arg)
+{
+	return static_cast<s32>(idm::make<commerce2_ctx>(version, npid, handler, arg));
+}
+bool np_handler::destroy_commerce2_context(s32 ctx_id)
+{
+	return idm::remove<commerce2_ctx>(static_cast<u32>(ctx_id));
+}
+std::shared_ptr<np_handler::commerce2_ctx> np_handler::get_commerce2_context(u16 ctx_id)
+{
+	return idm::get_unlocked<commerce2_ctx>(ctx_id);
+}
+
+
 
 bool np_handler::error_and_disconnect(const std::string& error_msg)
 {
@@ -1075,6 +1115,8 @@ u32 np_handler::generate_callback_info(SceNpMatching2ContextId ctx_id, vm::cptr<
 	ret.ctx_id = ctx_id;
 	ret.cb     = optParam ? optParam->cbFunc : ctx->default_match2_optparam.cbFunc;
 	ret.cb_arg = optParam ? optParam->cbFuncArg : ctx->default_match2_optparam.cbFuncArg;
+
+	nph_log.warning("Callback used is 0x%x", ret.cb);
 
 	pending_requests[req_id] = std::move(ret);
 
