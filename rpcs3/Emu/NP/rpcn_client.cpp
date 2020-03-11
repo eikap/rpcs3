@@ -165,7 +165,7 @@ bool rpcn_client::connect(const std::string& host)
 
 	if (splithost.size() != 1 && splithost.size() != 2)
 	{
-		rpcn_log.error("RPCN host is invalid!");
+		rpcn_log.fatal("RPCN host is invalid!");
 		return false;
 	}
 
@@ -175,7 +175,7 @@ bool rpcn_client::connect(const std::string& host)
 	hostent *host_addr = gethostbyname(splithost[0].c_str());
 	if (!host_addr)
 	{
-		rpcn_log.error("Failed to resolve %s", splithost[0]);
+		rpcn_log.fatal("Failed to resolve %s", splithost[0]);
 		return false;
 	}
 
@@ -191,13 +191,13 @@ bool rpcn_client::connect(const std::string& host)
 	timeout.tv_usec = 0;
 	if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char*>(&timeout), sizeof(timeout)) < 0)
 	{
-		rpcn_log.error("Failed to setsockopt!");
+		rpcn_log.fatal("Failed to setsockopt!");
 		return false;
 	}
 
 	if (::connect(sockfd, reinterpret_cast<struct sockaddr*>(&addr_rpcn), sizeof(addr_rpcn)) != 0)
 	{
-		rpcn_log.error("Failed to connect to RPCN server!");
+		rpcn_log.fatal("Failed to connect to RPCN server!");
 		return false;
 	}
 
@@ -208,7 +208,7 @@ bool rpcn_client::connect(const std::string& host)
 
 	if (received_version != RPCN_PROTOCOL_VERSION)
 	{
-		rpcn_log.error("Server returned protocol version: %d, expected: %d", received_version, RPCN_PROTOCOL_VERSION);
+		rpcn_log.fatal("Server returned protocol version: %d, expected: %d", received_version, RPCN_PROTOCOL_VERSION);
 		disconnect();
 		return false;
 	}
@@ -950,7 +950,7 @@ bool rpcn_client::is_error(ErrorType err) const
 
 bool rpcn_client::error_and_disconnect(const std::string& error_msg)
 {
-	rpcn_log.error("%s", error_msg);
+	rpcn_log.fatal("%s", error_msg);
 	disconnect();
 	return false;
 }

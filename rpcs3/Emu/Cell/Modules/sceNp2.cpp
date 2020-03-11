@@ -1439,6 +1439,22 @@ error_code sceNpMatching2ContextStop(SceNpMatching2ContextId ctxId)
 		return SCE_NP_MATCHING2_ERROR_NOT_INITIALIZED;
 	}
 
+	const auto ctx = nph->get_match2_context(ctxId);
+
+	if (!ctx)
+	{
+		return SCE_NP_MATCHING2_ERROR_INVALID_CONTEXT_ID;
+	}
+
+	if (ctx->context_callback)
+	{
+		sysutil_register_cb([=](ppu_thread& cb_ppu) -> s32 {
+			ctx->context_callback(cb_ppu, ctxId, SCE_NP_MATCHING2_CONTEXT_EVENT_Stop, SCE_NP_MATCHING2_EVENT_CAUSE_CONTEXT_ACTION, 0, ctx->context_callback_param);
+			return 0;
+		});
+
+	}
+
 	return CELL_OK;
 }
 

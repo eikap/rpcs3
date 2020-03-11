@@ -356,8 +356,8 @@ struct lv2_socket final
 
 	// Used to differentiate between P2P sockets and others
 	s32 type = 0;
-	// P2P virtual port, set on bind
-	u16 vport = 0;
+	// P2P port and virtual port, set on bind
+	u16 port = 0, vport = 0;
 	// Queue containing received packets from network_thread for P2P sockets
 	std::queue<std::pair<sys_net_sockaddr_in_p2p, std::vector<u8>>> p2p_data{};
 
