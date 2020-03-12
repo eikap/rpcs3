@@ -70,7 +70,15 @@ public:
 	bool is_NP_Auth_init    = false;
 
 	// NP Handlers/Callbacks
+	// Seems to be global
 	vm::ptr<SceNpManagerCallback> manager_cb{};               // Connection status and tickets
+	vm::ptr<void> manager_cb_arg{};
+
+	// Registered by SceNpCommunicationId
+	vm::ptr<SceNpBasicEventHandler> basic_handler;
+	vm::ptr<void> basic_handler_arg;
+
+	// Those should probably be under match2 ctx
 	vm::ptr<SceNpMatching2RoomEventCallback> room_event_cb{}; // Room events
 	u16 room_event_cb_ctx = 0;
 	vm::ptr<void> room_event_cb_arg{};
@@ -168,15 +176,34 @@ public:
 		static const u32 id_step  = 1;
 		static const u32 id_count = 32;
 
-		u32 version;
-		SceNpId npid;
-		vm::ptr<SceNpCommerce2Handler> context_callback;
-		vm::ptr<void> context_callback_param;
+		u32 version{};
+		SceNpId npid{};
+		vm::ptr<SceNpCommerce2Handler> context_callback{};
+		vm::ptr<void> context_callback_param{};
 	};
 	s32 create_commerce2_context(u32 version, vm::cptr<SceNpId> npid, vm::ptr<SceNpCommerce2Handler> handler, vm::ptr<void> arg);
 	std::shared_ptr<commerce2_ctx> get_commerce2_context(u16 ctx_id);
 	bool destroy_commerce2_context(s32 ctx_id);
 
+	struct signaling_ctx
+	{
+		signaling_ctx(vm::ptr<SceNpId> npid, vm::ptr<SceNpSignalingHandler> handler, vm::ptr<void> arg)
+		{
+			memcpy(&this->npid, npid.get_ptr(), sizeof(SceNpId));
+			this->handler = handler;
+			this->arg = arg;
+		}
+
+		static const u32 id_base  = 1;
+		static const u32 id_step  = 1;
+		static const u32 id_count = 32;
+
+		SceNpId npid{};
+		vm::ptr<SceNpSignalingHandler> handler{};
+		vm::ptr<void> arg{};
+	};
+	s32 create_signaling_context(vm::ptr<SceNpId> npid, vm::ptr<SceNpSignalingHandler> handler, vm::ptr<void> arg);
+	bool destroy_signaling_context(s32 ctx_id);
 
 	// Synchronous requests
 	std::vector<SceNpMatching2ServerId> get_match2_server_list(SceNpMatching2ContextId);
@@ -195,6 +222,9 @@ public:
 
 	u32 get_match2_event(SceNpMatching2EventKey event_key, u8* dest, u32 size);
 	const signaling_info& get_peer_infos(u16 context_id, u64 room_id, u16 member_id);
+
+	// Misc stuff
+	u32 add_players_to_history(vm::cptr<SceNpId> npids, u32 count);
 
 	static constexpr std::string_view thread_name = "NP Handler Thread";
 

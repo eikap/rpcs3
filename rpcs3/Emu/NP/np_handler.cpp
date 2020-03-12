@@ -898,10 +898,13 @@ void np_handler::notif_p2p_established(std::vector<u8>& data)
 	info.port = port_p2p;
 
 	// Signal the callback
-	sysutil_register_cb([signal_event_cb = this->signal_event_cb, signal_event_cb_ctx = this->signal_event_cb_ctx, room_id, member_id, signal_event_cb_arg = this->signal_event_cb_arg](ppu_thread& cb_ppu) -> s32 {
-		signal_event_cb(cb_ppu, signal_event_cb_ctx, room_id, member_id, SCE_NP_MATCHING2_SIGNALING_EVENT_Established, 0, signal_event_cb_arg);
-		return 0;
-	});
+	if (signal_event_cb)
+	{
+		sysutil_register_cb([signal_event_cb = this->signal_event_cb, signal_event_cb_ctx = this->signal_event_cb_ctx, room_id, member_id, signal_event_cb_arg = this->signal_event_cb_arg](ppu_thread& cb_ppu) -> s32 {
+			signal_event_cb(cb_ppu, signal_event_cb_ctx, room_id, member_id, SCE_NP_MATCHING2_SIGNALING_EVENT_Established, 0, signal_event_cb_arg);
+			return 0;
+		});
+	}
 
 	in_addr da_addr;
 	da_addr.s_addr = addr_p2p;
@@ -1093,6 +1096,15 @@ std::shared_ptr<np_handler::commerce2_ctx> np_handler::get_commerce2_context(u16
 	return idm::get_unlocked<commerce2_ctx>(ctx_id);
 }
 
+s32 np_handler::create_signaling_context(vm::ptr<SceNpId> npid, vm::ptr<SceNpSignalingHandler> handler, vm::ptr<void> arg)
+{
+	return static_cast<s32>(idm::make<signaling_ctx>(npid, handler, arg));
+}
+bool np_handler::destroy_signaling_context(s32 ctx_id)
+{
+	return idm::remove<signaling_ctx>(static_cast<u32>(ctx_id));
+}
+
 
 
 bool np_handler::error_and_disconnect(const std::string& error_msg)
@@ -1128,4 +1140,19 @@ u8* np_handler::allocate_req_result(u32 event_key, size_t size)
 	std::lock_guard lock(mutex_req_results);
 	match2_req_results[event_key] = std::vector<u8>(size, 0);
 	return match2_req_results[event_key].data();
+}
+
+u32 np_handler::add_players_to_history(vm::cptr<SceNpId> npids, u32 count)
+{
+	const u32 req_id = get_req_id(0);
+
+	if (basic_handler)
+	{
+		sysutil_register_cb([basic_handler = this->basic_handler, req_id, basic_handler_arg = this->basic_handler_arg](ppu_thread& cb_ppu) -> s32 {
+			basic_handler(cb_ppu, SCE_NP_BASIC_EVENT_ADD_PLAYERS_HISTORY_RESULT, 0, req_id, basic_handler_arg);
+			return 0;
+		});
+	}
+
+	return req_id;
 }

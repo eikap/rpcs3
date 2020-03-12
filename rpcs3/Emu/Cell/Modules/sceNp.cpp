@@ -627,6 +627,9 @@ error_code sceNpBasicRegisterHandler(vm::cptr<SceNpCommunicationId> context, vm:
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
 
+	nph->basic_handler = handler;
+	nph->basic_handler_arg = arg;
+
 	return CELL_OK;
 }
 
@@ -1127,6 +1130,8 @@ error_code sceNpBasicAddPlayersHistoryAsync(vm::cptr<SceNpId> npids, u32 count, 
 	{
 		return SCE_NP_BASIC_ERROR_EXCEEDS_MAX;
 	}
+
+	*reqId = nph->add_players_to_history(npids, count);
 
 	return CELL_OK;
 }
@@ -2411,6 +2416,7 @@ error_code sceNpManagerRegisterCallback(vm::ptr<SceNpManagerCallback> callback, 
 	}
 
 	nph->manager_cb = callback;
+	nph->manager_cb_arg = arg;
 
 	return CELL_OK;
 }
@@ -4321,6 +4327,8 @@ error_code sceNpSignalingCreateCtx(vm::ptr<SceNpId> npId, vm::ptr<SceNpSignaling
 	//	return SCE_NP_SIGNALING_ERROR_CTX_MAX;
 	//}
 
+	*ctx_id = nph->create_signaling_context(npId, handler, arg);
+
 	return CELL_OK;
 }
 
@@ -4333,6 +4341,11 @@ error_code sceNpSignalingDestroyCtx(u32 ctx_id)
 	if (!nph->is_NP_init)
 	{
 		return SCE_NP_SIGNALING_ERROR_NOT_INITIALIZED;
+	}
+
+	if (!nph->destroy_signaling_context(ctx_id))
+	{
+		return SCE_NP_SIGNALING_ERROR_CTX_NOT_FOUND;
 	}
 
 	return CELL_OK;
