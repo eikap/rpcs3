@@ -660,5 +660,7 @@ public:
 	void FCTIDZ(ppu_opcode_t op);
 	void FCFID(ppu_opcode_t op);
 
+	void PPU_STATICHLE(ppu_opcode_t op);
+
 	void UNK(ppu_opcode_t op);
 };

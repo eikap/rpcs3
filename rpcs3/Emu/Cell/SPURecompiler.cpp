@@ -6075,7 +6075,7 @@ public:
 		m_ir->CreateFence(llvm::AtomicOrdering::SequentiallyConsistent);
 	}
 
-	void STATICHLE(spu_opcode_t op) //
+	void SPU_STATICHLE(spu_opcode_t op) //
 	{
 		const auto func = g_fxo->get<statichle_handler>()->get_spu_func(op.opcode & 0xFFFF);
 

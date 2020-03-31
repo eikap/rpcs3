@@ -155,7 +155,7 @@ bool spu_interpreter::DSYNC(spu_thread& spu, spu_opcode_t op)
 	return true;
 }
 
-bool spu_interpreter::STATICHLE(spu_thread& spu, spu_opcode_t op)
+bool spu_interpreter::SPU_STATICHLE(spu_thread& spu, spu_opcode_t op)
 {
 	// STATICHLE: TODO
 	ASSERT(false);

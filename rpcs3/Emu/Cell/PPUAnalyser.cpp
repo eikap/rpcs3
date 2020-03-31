@@ -1527,6 +1527,10 @@ void ppu_module::analyse(u32 lib_toc, u32 entry)
 	ppu_log.notice("Function analysis: %zu functions (%zu enqueued)", funcs.size(), func_queue.size());
 }
 
+void ppu_acontext::PPU_STATICHLE(ppu_opcode_t op)
+{
+}
+
 void ppu_acontext::UNK(ppu_opcode_t op)
 {
 	std::fill_n(gpr, 32, spec_gpr{});

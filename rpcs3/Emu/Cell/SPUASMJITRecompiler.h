@@ -104,7 +104,7 @@ public:
 	void LNOP(spu_opcode_t op);
 	void SYNC(spu_opcode_t op);
 	void DSYNC(spu_opcode_t op);
-	void STATICHLE(spu_opcode_t op);
+	void SPU_STATICHLE(spu_opcode_t op);
 	void MFSPR(spu_opcode_t op);
 	void RDCH(spu_opcode_t op);
 	void RCHCNT(spu_opcode_t op);

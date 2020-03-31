@@ -15,7 +15,7 @@ struct spu_interpreter
 	static bool LNOP(spu_thread&, spu_opcode_t);
 	static bool SYNC(spu_thread&, spu_opcode_t);
 	static bool DSYNC(spu_thread&, spu_opcode_t);
-	static bool STATICHLE(spu_thread&, spu_opcode_t);
+	static bool SPU_STATICHLE(spu_thread&, spu_opcode_t);
 	static bool MFSPR(spu_thread&, spu_opcode_t);
 	static bool RDCH(spu_thread&, spu_opcode_t);
 	static bool RCHCNT(spu_thread&, spu_opcode_t);

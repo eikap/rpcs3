@@ -175,7 +175,7 @@ public:
 	{
 		DisAsm("dsync");
 	}
-	void STATICHLE(spu_opcode_t /*op*/)
+	void SPU_STATICHLE(spu_opcode_t /*op*/)
 	{
 		DisAsm("STATICHLE");
 	}

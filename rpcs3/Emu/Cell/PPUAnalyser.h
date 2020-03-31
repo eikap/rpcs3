@@ -166,6 +166,8 @@ struct ppu_itype
 	{
 		UNK = 0,
 
+		PPU_STATICHLE,
+
 		MFVSCR,
 		MTVSCR,
 		VADDCUW,
@@ -558,6 +560,7 @@ struct ppu_iname
 {
 #define NAME(x) static constexpr const char& x = *#x;
 	NAME(UNK)
+	NAME(PPU_STATICHLE)
 	NAME(MFVSCR)
 	NAME(MTVSCR)
 	NAME(VADDCUW)
@@ -1293,6 +1296,8 @@ struct ppu_acontext
 
 	// Analyser step
 	void UNK(ppu_opcode_t);
+
+	void PPU_STATICHLE(ppu_opcode_t);
 
 	void MFVSCR(ppu_opcode_t);
 	void MTVSCR(ppu_opcode_t);

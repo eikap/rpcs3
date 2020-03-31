@@ -1345,6 +1345,8 @@ extern void ppu_initialize()
 	spu_cache::initialize();
 }
 
+void ppu_statichle(ppu_thread& ppu, u64 addr);
+
 extern void ppu_initialize(const ppu_module& info)
 {
 	if (g_cfg.core.ppu_decoder != ppu_decoder_type::llvm)
@@ -1396,6 +1398,7 @@ extern void ppu_initialize(const ppu_module& info)
 			{ "__stvlx", s_use_ssse3 ? reinterpret_cast<u64>(sse_cellbe_stvlx) : reinterpret_cast<u64>(sse_cellbe_stvlx_v0) },
 			{ "__stvrx", s_use_ssse3 ? reinterpret_cast<u64>(sse_cellbe_stvrx) : reinterpret_cast<u64>(sse_cellbe_stvrx_v0) },
 			{ "__resupdate", reinterpret_cast<u64>(vm::reservation_update) },
+			{ "__statichle", reinterpret_cast<u64>(&ppu_statichle) },
 			{ "sys_config_io_event", reinterpret_cast<u64>(ppu_get_syscall(523)) },
 		};
 

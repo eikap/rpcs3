@@ -572,6 +572,9 @@ public:
 			{ 0x32f, &D::FCTIDZ },
 			{ 0x34e, &D::FCFID },
 		});
+
+		// Special for static HLE
+		m_table.at(0x5) = &D::PPU_STATICHLE;
 	}
 
 	const std::array<T, 0x20000>& get_table() const

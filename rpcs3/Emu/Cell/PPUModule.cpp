@@ -1250,6 +1250,7 @@ void ppu_load_exec(const ppu_exec_object& elf)
 		for (u32 i = _main->segs[0].addr; i < (_main->segs[0].addr + _main->segs[0].size); i += 4)
 		{
 			shle->check_against_ppu_patterns(vm::cast(i), (_main->segs[0].addr + _main->segs[0].size) - i, i);
+			shle->check_against_complex_ppu_patterns(vm::cast(i), (_main->segs[0].addr + _main->segs[0].size) - i, i);
 		}
 	}
 

@@ -5012,6 +5012,13 @@ bool ppu_interpreter::FCFID(ppu_thread& ppu, ppu_opcode_t op)
 	return true;
 }
 
+bool ppu_interpreter::PPU_STATICHLE(ppu_thread& ppu, ppu_opcode_t op)
+{
+	// TODO
+	ASSERT(false);
+	return true;
+}
+
 bool ppu_interpreter::UNK(ppu_thread& ppu, ppu_opcode_t op)
 {
 	fmt::throw_exception("Unknown/Illegal opcode: 0x%08x at 0x%x" HERE, op.opcode, ppu.cia);

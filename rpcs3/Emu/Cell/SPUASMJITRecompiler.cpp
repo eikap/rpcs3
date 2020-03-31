@@ -1462,7 +1462,7 @@ void spu_recompiler::DSYNC(spu_opcode_t op)
 	c->mfence();
 }
 
-void spu_recompiler::STATICHLE(spu_opcode_t op)
+void spu_recompiler::SPU_STATICHLE(spu_opcode_t op)
 {
 	// STATICHLE: TODO
 	ASSERT(false);

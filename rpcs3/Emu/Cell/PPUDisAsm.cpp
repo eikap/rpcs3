@@ -2304,6 +2304,11 @@ void PPUDisAsm::FCFID(ppu_opcode_t op)
 
 extern std::vector<std::string> g_ppu_function_names;
 
+void PPUDisAsm::PPU_STATICHLE(ppu_opcode_t op)
+{
+	Write("STATICHLE");
+}
+
 void PPUDisAsm::UNK(ppu_opcode_t op)
 {
 	if (op.opcode == dump_pc && ppu_function_manager::addr)

@@ -338,6 +338,8 @@ struct ppu_interpreter
 	static bool STVRX(ppu_thread&, ppu_opcode_t);
 	static bool STVRXL(ppu_thread&, ppu_opcode_t);
 
+	static bool PPU_STATICHLE(ppu_thread&, ppu_opcode_t);
+
 	static bool UNK(ppu_thread&, ppu_opcode_t);
 };
 

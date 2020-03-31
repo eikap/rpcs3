@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "StaticHLE.h"
+#include "Emu/Cell/PPUAnalyser.h"
 
 LOG_CHANNEL(static_hle);
 
@@ -182,14 +183,24 @@ void cellAtomicSub64_spu(spu_thread* spu)
 void cellAtomicTestAndDecr32_spu(spu_thread* spu)
 {
 	atomic_t<be_t<u32>>& datomic = *reinterpret_cast<atomic_t<be_t<u32>>*>(vm::base(spu->gpr[4]._u64[1]));
-	be_t<u32> previous           = datomic.fetch_op([&](be_t<u32>& v) { if (v) { v--; } });
+	be_t<u32> previous           = datomic.fetch_op([&](be_t<u32>& v) {
+  if (v)
+  {
+   v--;
+  }
+ });
 
 	spu->gpr[3]._u64[1] = previous;
 }
 void cellAtomicTestAndDecr64_spu(spu_thread* spu)
 {
 	atomic_t<be_t<u64>>& datomic = *reinterpret_cast<atomic_t<be_t<u64>>*>(vm::base(spu->gpr[4]._u64[1]));
-	be_t<u64> previous           = datomic.fetch_op([&](be_t<u64>& v) { if (v) { v--; } });
+	be_t<u64> previous           = datomic.fetch_op([&](be_t<u64>& v) {
+  if (v)
+  {
+   v--;
+  }
+ });
 
 	spu->gpr[3]._u64[1] = previous;
 }
@@ -490,6 +501,167 @@ bool statichle_handler::check_against_ppu_patterns(const vm::cptr<u8> data, u32 
 		vm::write32(addr + 4, ppu_instructions::ORI(0, 0, target & 0xFFFF));
 		vm::write32(addr + 8, ppu_instructions::MTCTR(0));
 		vm::write32(addr + 12, ppu_instructions::BCTR());
+
+		return true;
+	}
+
+	return false;
+}
+
+struct dispatch_info
+{
+	statichle_ppu_func function{};
+	std::vector<u64> parameters{};
+};
+
+std::map<u64, dispatch_info> complex_hooks;
+
+void ppu_statichle(ppu_thread& ppu, u64 addr)
+{
+	if (!complex_hooks.count(addr))
+	{
+		static_hle.fatal("ppu_statichle called from non registered address!");
+		return;
+	}
+
+	const auto& infos = complex_hooks.at(addr);
+
+	infos.function(ppu, infos.parameters);
+}
+
+void ppu_fetchadd(ppu_thread& ppu, const std::vector<u64>& params)
+{
+	u64 reg_ra = params[0];
+	u64 reg_rb = params[1];
+	u64 si = params[2];
+	u32 addr                     = reg_ra ? (ppu.gpr[reg_ra] + ppu.gpr[reg_rb]) : ppu.gpr[reg_rb];
+
+	// static_hle.error("Address of change is 0x%x", addr);
+
+	atomic_t<be_t<u64>>& datomic = *reinterpret_cast<atomic_t<be_t<u64>>*>(vm::base(addr));
+	be_t<u64> previous           = datomic.fetch_add(si);
+}
+
+enum class cap_param_type : u8
+{
+	RS,
+	RT,
+	RA,
+	RB,
+	SI,
+	ZERO,
+};
+
+struct param_capture
+{
+	u8 inst_number;
+	cap_param_type type;
+};
+
+struct complex_pattern
+{
+	std::string function_name;
+	std::vector<ppu_itype::type> instruction_list;
+	std::vector<std::pair<param_capture, param_capture>> sanity_list;
+	std::vector<param_capture> capture_list;
+	statichle_ppu_func function;
+};
+
+const std::vector<complex_pattern> complex_patterns{
+    {
+        "fetch_add",
+        {ppu_itype::LDARX, ppu_itype::ADDI, ppu_itype::STDCX, ppu_itype::MFOCRF, ppu_itype::RLWINM, ppu_itype::ADDIS, ppu_itype::CMPI, ppu_itype::ORI, ppu_itype::BC},
+        {{{0, cap_param_type::RT}, {2, cap_param_type::RS}}, {{1, cap_param_type::RT}, {1, cap_param_type::RA}}, {{0, cap_param_type::RA}, {2, cap_param_type::RA}},
+            {{0, cap_param_type::RB}, {2, cap_param_type::RB}}, {{0, cap_param_type::RT}, {1, cap_param_type::RT}}},
+        {{0, cap_param_type::RA}, {0, cap_param_type::RB}, {1, cap_param_type::SI}},
+        ppu_fetchadd,
+    },
+};
+
+constexpr ppu_decoder<ppu_itype> s_ppu_itype;
+
+bool statichle_handler::check_against_complex_ppu_patterns(const vm::cptr<u8> data, u32 size, u32 addr)
+{
+	const vm::cptr<u32> inst_ptr = vm::cast(data.addr());
+
+	auto get_parameter = [](u32 op, cap_param_type type) -> u64 {
+		u64 capture = 0;
+		ppu_opcode_t cap_inst;
+		cap_inst.opcode = op;
+
+		switch (type)
+		{
+		case cap_param_type::RS: capture = cap_inst.rs; break;
+		case cap_param_type::RT: capture = cap_inst.rd; break;
+		case cap_param_type::RA: capture = cap_inst.ra; break;
+		case cap_param_type::RB: capture = cap_inst.rb; break;
+		case cap_param_type::SI: capture = cap_inst.simm16; break;
+		case cap_param_type::ZERO: capture = 0; break;
+		default:
+			static_hle.fatal("Unknown param type requested!");
+			ASSERT(false);
+			break;
+		}
+
+		return capture;
+	};
+
+	for (const auto& pat : complex_patterns)
+	{
+		if (size < pat.instruction_list.size() * sizeof(u32))
+			continue;
+
+		bool match = true;
+		for (std::size_t i = 0; i < pat.instruction_list.size(); i++)
+		{
+			if (pat.instruction_list[i] != s_ppu_itype.decode(inst_ptr[i]))
+			{
+				match = false;
+				break;
+			}
+		}
+
+		if (!match)
+			continue;
+
+		// Got instruction match, check sanity list
+		for (const auto& sane : pat.sanity_list)
+		{
+			u64 sane1 = get_parameter(inst_ptr[sane.first.inst_number], sane.first.type);
+			u64 sane2 = get_parameter(inst_ptr[sane.second.inst_number], sane.second.type);
+
+			if (sane1 != sane2)
+			{
+				match = false;
+				break;
+			}
+		}
+
+		if (!match)
+		{
+			static_hle.warning("Got instruction match but failed on sanity check for %s at 0x%x", pat.function_name, addr);
+			continue;
+		}
+
+		static_hle.success("Found complex PPU function %s at 0x%x", pat.function_name, addr);
+
+		// Stores the parameters
+		dispatch_info infos;
+		infos.function = pat.function;
+		for (const auto& cap : pat.capture_list)
+		{
+			infos.parameters.push_back(get_parameter(inst_ptr[cap.inst_number], cap.type));
+		}
+
+		complex_hooks.insert({addr, std::move(infos)});
+
+		// Writes STATICHLE opcode
+		vm::write32(addr, 5 << 26);
+		// Nukes the rest of the instructions
+		for (std::size_t i = 1; i < pat.instruction_list.size(); i++)
+		{
+			vm::write32(addr + (i * 4), 0x60000000);
+		}
 
 		return true;
 	}

@@ -7,6 +7,7 @@
 #include <vector>
 
 using statichle_spu_func = void (*)(spu_thread*);
+using statichle_ppu_func = void (*)(ppu_thread&, const std::vector<u64>&);
 
 struct flair_pattern
 {
@@ -40,6 +41,7 @@ public:
 	bool load_ppu_patterns();
 	bool load_spu_patterns();
 	bool check_against_ppu_patterns(vm::cptr<u8> data, u32 size, u32 addr);
+	bool check_against_complex_ppu_patterns(vm::cptr<u8> data, u32 size, u32 addr);
 	bool check_against_spu_patterns(u8* data, u32 size);
 	const std::pair<const std::string, const statichle_spu_func> get_spu_func(u16 index);
 

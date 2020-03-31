@@ -1,4 +1,5 @@
-﻿#ifdef LLVM_AVAILABLE
+﻿#define LLVM_AVAILABLE
+#ifdef LLVM_AVAILABLE
 
 #include "Emu/system_config.h"
 #include "PPUTranslator.h"
@@ -4407,6 +4408,11 @@ void PPUTranslator::FCFID(ppu_opcode_t op)
 	//SetFPSCR_FR(Call(GetType<bool>(), m_pure_attr, "__fcfid_get_fr", b));
 	//SetFPSCR_FI(Call(GetType<bool>(), m_pure_attr, "__fcfid_get_fi", b));
 	SetFPRF(result, op.rc != 0);
+}
+
+void PPUTranslator::PPU_STATICHLE(ppu_opcode_t op)
+{
+	Call(GetType<void>(), "__statichle", m_thread, GetAddr());
 }
 
 void PPUTranslator::UNK(ppu_opcode_t op)
