@@ -4968,6 +4968,7 @@ public:
 				case spu_itype::STOPD:
 				case spu_itype::RDCH:
 				case spu_itype::WRCH:
+				case spu_itype::SPU_STATICHLE:
 				{
 					// Invalid or abortable instruction. Save current address.
 					m_ir->CreateStore(m_interp_pc, spu_ptr<u32>(&spu_thread::pc));
@@ -4992,6 +4993,7 @@ public:
 						itype == spu_itype::RCHCNT ||
 						itype == spu_itype::STOP ||
 						itype == spu_itype::STOPD ||
+						itype == spu_itype::SPU_STATICHLE ||
 						itype & spu_itype::floating ||
 						itype & spu_itype::branch)
 					{
@@ -5078,6 +5080,7 @@ public:
 								itype == spu_itype::DFCMGT ||
 								itype == spu_itype::DFCGT ||
 								itype == spu_itype::DFCEQ ||
+								itype == spu_itype::SPU_STATICHLE ||
 								itype == spu_itype::DFTSV)
 							{
 								m_interp_7f0  = m_ir->getInt32(0x7f0);
@@ -5110,6 +5113,7 @@ public:
 								itype == spu_itype::RDCH ||
 								itype == spu_itype::RCHCNT ||
 								itype == spu_itype::STOP ||
+								itype == spu_itype::SPU_STATICHLE ||
 								itype == spu_itype::STOPD)
 							{
 								m_interp_7f0  = m_ir->getInt32(0x7f0);
