@@ -17,6 +17,11 @@ bool breakpoint_handler::IsBreakOnBPM()
 	return break_on_bpm;
 }
 
+void breakpoint_handler::SetBreakOnBPM(bool value)
+{
+	break_on_bpm = value;
+}
+
 bool breakpoint_handler::HasBreakpoint(u32 loc, bs_t<breakpoint_type> type)
 {
 	return (m_breakpoints_list.find(loc) != m_breakpoints_list.end()) && ((m_breakpoints_list[loc] & type) == type);
@@ -33,19 +38,19 @@ bool breakpoint_handler::AddBreakpoint(u32 loc, bs_t<breakpoint_type> type)
 	return true;
 }
 
-bool breakpoint_handler::RemoveBreakpoint(u32 loc, bs_t<breakpoint_type> type)
+bool breakpoint_handler::RemoveBreakpoint(u32 loc)
 {
 	if ( (m_breakpoints_list.find(loc) == m_breakpoints_list.end()) )// || ((m_breakpoints_list[loc] & type) != type))
 	{
 		return false;
 	}
 
-	m_breakpoints_list.erase(loc);
-
-	if (type & breakpoint_type::bp_execute)
+	if (m_breakpoints_list[loc] & breakpoint_type::bp_execute)
 	{
 		ppu_breakpoint(loc, false);
 	}
+
+	m_breakpoints_list.erase(loc);
 
 	return true;
 }

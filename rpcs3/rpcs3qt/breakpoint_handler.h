@@ -23,6 +23,7 @@ public:
 	~breakpoint_handler();
 
 	bool IsBreakOnBPM();
+	void SetBreakOnBPM(bool value);
 
 	/**
 	* Returns true iff breakpoint exists at loc.
@@ -39,7 +40,7 @@ public:
 	/**
 	* Returns true if removed breakpoint at loc successfully.
 	*/
-	bool RemoveBreakpoint(u32 loc, bs_t<breakpoint_type> type);
+	bool RemoveBreakpoint(u32 loc);
 
 private:
 	// TODO : generalize to hold multiple games and handle flags.Probably do : std::map<std::string (gameid), std::set<breakpoint>>.

@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QPushButton>
+#include <QPointer>
 
 class breakpoint_list : public QListWidget
 {
@@ -35,9 +36,13 @@ private Q_SLOTS:
 	void OnBreakpointListDoubleClicked();
 	void OnBreakpointListRightClicked(const QPoint &pos);
 	void OnBreakpointListDelete();
+	void OnBreakPointListBreakOnMemoryToggled(bool checked);
+
 private:
 	breakpoint_handler* m_breakpoint_handler;
 
 	std::weak_ptr<cpu_thread> cpu;
 	std::shared_ptr<CPUDisAsm> m_disasm;
+
+	QPointer<QAction> m_memory_breakpoint_toggle = nullptr;
 };

@@ -398,7 +398,7 @@ void debugger_frame::DoUpdate()
 	// Check if we need to disable a step over bp
 	if (m_last_step_over_breakpoint != -1 && GetPc() == m_last_step_over_breakpoint)
 	{
-		m_breakpoint_handler->RemoveBreakpoint(m_last_step_over_breakpoint, breakpoint_type::bp_execute);
+		m_breakpoint_handler->RemoveBreakpoint(m_last_step_over_breakpoint);
 		m_last_step_over_breakpoint = -1;
 	}
 
@@ -595,7 +595,7 @@ void debugger_frame::DoStep(bool stepOver)
 				// This can happen when the user steps over a branch that doesn't return to itself
 				if (m_last_step_over_breakpoint != -1)
 				{
-					m_breakpoint_handler->RemoveBreakpoint(next_instruction_pc, breakpoint_type::bp_execute);
+					m_breakpoint_handler->RemoveBreakpoint(next_instruction_pc);
 				}
 
 				m_last_step_over_breakpoint = next_instruction_pc;
